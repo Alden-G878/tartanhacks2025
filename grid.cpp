@@ -278,10 +278,9 @@ int main() {
     for (auto &row : grid) {
         for (auto &cell : row) {
 
-            //cell.wind = {std::get<0>(returnWindData(cell.latitude, cell.longitude)),std::get<1>(returnWindData(cell.latitude, cell.longitude)) };     //INSERT RYANS API THING
-            //cell.current = {std::get<0>(returnData(cell.latitude, cell.longitude)),std::get<1>(returnData(cell.latitude, cell.longitude)) };   // Random current direction and speed
-            cell.wind = {0,0};
-            cell.current = {0,0};
+            cell.wind = {std::get<0>(returnWindData(cell.latitude, cell.longitude)),std::get<1>(returnWindData(cell.latitude, cell.longitude)) };     //INSERT RYANS API THING
+            cell.current = {std::get<0>(returnData(cell.latitude, cell.longitude)),std::get<1>(returnData(cell.latitude, cell.longitude)) };   // Random current direction and speed
+            
         }
     }
     std::cout << "Finished sim data" << std::endl;
