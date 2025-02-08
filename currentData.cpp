@@ -1,5 +1,6 @@
 
 
+
 #include <cmath>
 
 #include <iostream>
@@ -8,7 +9,7 @@
 #include <json/json.h>
 #include <sstream>
 
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+size_t WriteCallbacka(void* contents, size_t size, size_t nmemb, std::string* output) {
     size_t total_size = size * nmemb;
     output->append((char*)contents, total_size);
     return total_size;
@@ -26,7 +27,7 @@ void fetchOceanCurrentData(double latitude, double longitude, double &current_sp
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallbacka);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
 
         res = curl_easy_perform(curl);
@@ -56,15 +57,7 @@ void fetchOceanCurrentData(double latitude, double longitude, double &current_sp
     }
 }
 
-int main() {
-    double latitude, longitude;  
-
-    std::cout << "Enter latitude: ";
-    std::cin >> latitude;
-
-    std::cout << "Enter longitude: ";
-    std::cin >> longitude;
-
+std::tuple<double, double> returnData(double latitude, double longitude) {
     double current_speed = 0, current_direction = 0;
 
     fetchOceanCurrentData(latitude, longitude, current_speed, current_direction);
@@ -72,6 +65,5 @@ int main() {
     std::cout << "Ocean Current Speed: " << current_speed << " m/s" << std::endl;
     std::cout << "Ocean Current Direction: " << current_direction << "°" << std::endl;
 
-    return 0;
+    return std::make_tuple(current_speed, current_direction);
 }
-

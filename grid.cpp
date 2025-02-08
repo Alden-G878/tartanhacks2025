@@ -3,6 +3,8 @@
 #include <cmath>
 #include <fstream>
 #include <json/json.h>
+#include "currentData.h"
+#include "windData.h"
 
 const double EARTH_RADIUS_KM = 6371.0;  // Earth's radius in km
 const double GRID_SPACING_KM = 5.0;     // 5km grid spacing
@@ -11,6 +13,8 @@ const double GRID_SPACING_KM = 5.0;     // 5km grid spacing
 struct VectorData {
     double direction;  // in degrees
     double magnitude;  // in m/s
+
+    VectorData(double dir = 0, double mag = 0) : direction(dir), magnitude(mag) {}
 };
 
 // Structure to hold a grid cell
@@ -22,6 +26,12 @@ struct GridCell {
     double wind_scale;  // Each square has its own wind scale factor
     double dot;
     double heading;
+    
+    GridCell(double lat = 0, double lon = 0, VectorData windData = {0, 0}, VectorData currentData = {0, 0},
+             double scale = 1.0, double dotProd = 0, double head = 0)
+        : latitude(lat), longitude(lon), wind(windData), current(currentData),
+          wind_scale(scale), dot(dotProd), heading(head) {}
+    
 };
 
 // Convert degrees to radians
@@ -40,7 +50,7 @@ void computeGridCoordinates(double startLat, double startLon, int rows, int cols
         double newLat = startLat + (i * GRID_SPACING_KM / EARTH_RADIUS_KM) * (180.0 / M_PI);
         for (int j = 0; j < cols; ++j) {
             double newLon = startLon + (j * GRID_SPACING_KM / EARTH_RADIUS_KM) * (180.0 / M_PI) / cos(degToRad(newLat));
-            grid[i][j] = {newLat, newLon, {0, 0}, {0, 0}, 1.0, 0, 0, heading};  // Default wind scale = 1.0
+            grid[i][j] = GridCell{newLat, newLon, VectorData{0, 0}, VectorData{0, 0}, 1.0, 0, heading};  // Default wind scale = 1.0
         }
     }
 }
@@ -85,8 +95,8 @@ void saveGridToJson(const std::vector<std::vector<GridCell>> &grid, const std::s
             gridPoint["wind_scale"] = cell.wind_scale;
             gridPoint["current_direction"] = cell.current.direction;
             gridPoint["current_magnitude"] = cell.current.magnitude;
-            gridPoint["net_velocity_x"] = cell.net_velocity_x;
-            gridPoint["net_velocity_y"] = cell.net_velocity_y;
+            gridPoint["dot"] = cell.dot;
+            gridPoint["heading"] = cell.heading;
             root.append(gridPoint);
         }
     }
@@ -119,9 +129,8 @@ int main() {
     // Simulated data input (Replace with actual API data)
     for (auto &row : grid) {
         for (auto &cell : row) {
-            cell.wind = {rand() % 360, (rand() % 10) + 1};     // Random wind direction and speed
-            cell.current = {rand() % 360, (rand() % 5) + 1};   // Random current direction and speed
-            cell.wind_scale = 0.5 + static_cast<double>(rand()) / RAND_MAX;  // Random scaling factor between 0.5 - 1.5
+            cell.wind = {std::get<0>(returnWindData(cell.latitude, cell.longitude)),std::get<1>(returnWindData(cell.latitude, cell.longitude)) };     //INSERT RYANS API THING
+            cell.current = {std::get<0>(returnData(cell.latitude, cell.longitude)),std::get<1>(returnData(cell.latitude, cell.longitude)) };   // Random current direction and speed
         }
     }
 
