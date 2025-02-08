@@ -20,8 +20,8 @@ struct GridCell {
     VectorData wind;
     VectorData current;
     double wind_scale;  // Each square has its own wind scale factor
-    double net_velocity_x;
-    double net_velocity_y;
+    double dot;
+    double heading;
 };
 
 // Convert degrees to radians
@@ -35,12 +35,12 @@ double radToDeg(double radians) {
 }
 
 // Compute destination coordinates given start lat/lon, bearing, and distance
-void computeGridCoordinates(double startLat, double startLon, int rows, int cols, std::vector<std::vector<GridCell>> &grid) {
+void computeGridCoordinates(double startLat, double startLon, int rows, int cols, double heading, std::vector<std::vector<GridCell>> &grid) {
     for (int i = 0; i < rows; ++i) {
         double newLat = startLat + (i * GRID_SPACING_KM / EARTH_RADIUS_KM) * (180.0 / M_PI);
         for (int j = 0; j < cols; ++j) {
             double newLon = startLon + (j * GRID_SPACING_KM / EARTH_RADIUS_KM) * (180.0 / M_PI) / cos(degToRad(newLat));
-            grid[i][j] = {newLat, newLon, {0, 0}, {0, 0}, 1.0, 0, 0};  // Default wind scale = 1.0
+            grid[i][j] = {newLat, newLon, {0, 0}, {0, 0}, 1.0, 0, 0, heading};  // Default wind scale = 1.0
         }
     }
 }
@@ -61,8 +61,13 @@ void processGrid(std::vector<std::vector<GridCell>> &grid) {
             computeVectorComponents(cell.wind.direction, cell.wind.magnitude * cell.wind_scale, wind_vx, wind_vy);
             computeVectorComponents(cell.current.direction, cell.current.magnitude, current_vx, current_vy);
 
-            cell.net_velocity_x = wind_vx + current_vx;
-            cell.net_velocity_y = wind_vy + current_vy;
+            cell.dot = wind_vx*wind_vy + current_vx*current_vy;
+
+            if (abs(cell.heading-cell.wind.direction)<90){
+                cell.wind_scale = 0;
+            }
+
+
         }
     }
 }
@@ -92,12 +97,15 @@ void saveGridToJson(const std::vector<std::vector<GridCell>> &grid, const std::s
 
 // Main function
 int main() {
-    double startLat, startLon, endLat, endLon;
+    double startLat, startLon, endLat, endLon, heading;
     
     std::cout << "Enter start latitude and longitude: ";
     std::cin >> startLat >> startLon;
     std::cout << "Enter end latitude and longitude: ";
     std::cin >> endLat >> endLon;
+    std::cout << "Enter the heading: ";
+    std::cin >> heading;
+
 
     // Calculate number of rows and columns
     int rows = std::round((endLat - startLat) * EARTH_RADIUS_KM / GRID_SPACING_KM);
@@ -106,7 +114,7 @@ int main() {
     std::vector<std::vector<GridCell>> grid(rows, std::vector<GridCell>(cols));
 
     // Compute grid coordinates
-    computeGridCoordinates(startLat, startLon, rows, cols, grid);
+    computeGridCoordinates(startLat, startLon, rows, cols, heading, grid);
 
     // Simulated data input (Replace with actual API data)
     for (auto &row : grid) {
