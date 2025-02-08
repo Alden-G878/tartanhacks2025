@@ -9,7 +9,7 @@
 #include <json/json.h>
 #include <sstream>
 
-size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+size_t WriteCallbacka(void* contents, size_t size, size_t nmemb, std::string* output) {
     size_t total_size = size * nmemb;
     output->append((char*)contents, total_size);
     return total_size;
@@ -27,7 +27,7 @@ void fetchOceanCurrentData(double latitude, double longitude, double &current_sp
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallbacka);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
 
         res = curl_easy_perform(curl);
