@@ -7,7 +7,7 @@
 #include "currentData.h"
 #include "windData.h"
 
-#define MAXV 1000
+#define MAXV 100000
 
 using namespace std;
 
@@ -16,7 +16,6 @@ class EdgeNode{
         int key;
         double weight;
         EdgeNode *next;
-        EdgeNode(int, double);
         EdgeNode(int key, double weight);
 };
 
@@ -71,7 +70,7 @@ void Graph::print(){
     }
 }
 
-void init_vars(bool discovered[], int distance[], int parent[]){
+void init_vars(bool discovered[], double distance[], int parent[]){
     for(int i = 1; i < (MAXV + 1); i ++){
         discovered[i] = false;
         distance[i] = std::numeric_limits<int>::max();
@@ -79,7 +78,7 @@ void init_vars(bool discovered[], int distance[], int parent[]){
     }
 }
 
-void dijkstra_shortest_path(Graph *g, int parent[], int distance[], int start){
+void dijkstra_shortest_path(Graph *g, int parent[], double distance[], int start){
 
     bool discovered[MAXV + 1];
     EdgeNode *curr;
@@ -309,6 +308,10 @@ int main() {
         }
     }
     std::cout << "Finished processing graph" << std::endl;
+    int parent[MAXV+1];
+    double distance[MAXV+1];
+    int start=1;
+    dijkstra_shortest_path(g, parent, distance, start);
     // Save to JSON file
     //saveGridToJson(grid, "grid_output.json");
 
