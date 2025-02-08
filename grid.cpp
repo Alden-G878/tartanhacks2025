@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <json/json.h>
+#include "currentData.cpp"
 
 const double EARTH_RADIUS_KM = 6371.0;  // Earth's radius in km
 const double GRID_SPACING_KM = 5.0;     // 5km grid spacing
@@ -85,8 +86,8 @@ void saveGridToJson(const std::vector<std::vector<GridCell>> &grid, const std::s
             gridPoint["wind_scale"] = cell.wind_scale;
             gridPoint["current_direction"] = cell.current.direction;
             gridPoint["current_magnitude"] = cell.current.magnitude;
-            gridPoint["net_velocity_x"] = cell.net_velocity_x;
-            gridPoint["net_velocity_y"] = cell.net_velocity_y;
+            gridPoint["dot"] = cell.dot;
+            gridPoint["heading"] = cell.heading;
             root.append(gridPoint);
         }
     }
@@ -119,9 +120,8 @@ int main() {
     // Simulated data input (Replace with actual API data)
     for (auto &row : grid) {
         for (auto &cell : row) {
-            cell.wind = {rand() % 360, (rand() % 10) + 1};     // Random wind direction and speed
-            cell.current = {rand() % 360, (rand() % 5) + 1};   // Random current direction and speed
-            cell.wind_scale = 0.5 + static_cast<double>(rand()) / RAND_MAX;  // Random scaling factor between 0.5 - 1.5
+            cell.wind = {rand() % 360, (rand() % 10) + 1};     //INSERT RYANS API THING
+            cell.current = {std::get<0>(returnData(cell.latitude, cell.longitude)),std::get<1>(returnData(cell.latitude, cell.longitude)) };   // Random current direction and speed
         }
     }
 
