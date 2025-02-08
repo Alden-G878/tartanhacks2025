@@ -5,6 +5,7 @@
 #define SAIL_DIAMETER 2
 #define ROPE_ANGLE M_PI/4
 #define DEFAULT_DIST -1
+#define SERVO_RAD 1
 
 double dot(std::vector<double> v1, std::vector<double> v2) {
   double res = 0.0;
@@ -97,7 +98,12 @@ void loop() {
   w_norm.at(1) = -wind_head.at(0);
 
   std::vector<double> app = prop(w_norm, SAIL_DIAMETER/2);
-  //app.at(1) is the amount we have to shift the sail by
-  //length of rope r=sqrt(height^2 + (DEFAULT_DIST-app.at(1))^2)
-  //keep track of how much we have the rope in by, 
+
+  double dist = DEFAULT_DIST - app.at(1); // offset of the boom
+  // length of rope r=sqrt(height^2 + dist^2)
+  // default length of rope def_r = sqtr(height^2 + DEFAULT_DIST^2)
+  // delta rope dr = r - def_r
+  // Calculate how much we need to rotate the servos by to acheive change of dr
+  //    need to use trig
+  //    radius SERVO_RAD
 }
