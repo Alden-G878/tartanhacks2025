@@ -2,10 +2,29 @@
 #include <vector>
 #include <Servo.h>
 
-#define SAIL_DIAMETER 2
+#define SAIL_DIAMETER 2*0.057
 #define ROPE_ANGLE M_PI/4
-#define DEFAULT_DIST -1
+#define DEFAULT_DIST 0.025
 #define SERVO_RAD 0.015
+#define SERVO0 0
+#define SERVO1 1
+#define SERVO2 2
+#define SERVO3 3
+#define SERVO4 4
+#define SERVO5 5
+#define SERVO6 6
+#define SERVO7 7
+#define SERVO8 8
+
+Servo s0;
+Servo s1;
+Servo s2;
+Servo s3;
+Servo s4;
+Servo s5;
+Servo s6;
+Servo s7;
+Servo s8;
 
 double dot(std::vector<double> v1, std::vector<double> v2) {
   double res = 0.0;
@@ -60,6 +79,15 @@ std::vector<double> normalize(std::vector<double> v) {
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(5000);
+  s0.attach(SERVO0); // front middle R
+  s1.attach(SERVO1); // back middle R
+  s2.attach(SERVO2);
+  s3.attach(SERVO3);
+  s4.attach(SERVO4);
+  s5.attach(SERVO5);
+  s6.attach(SERVO6);
+  s7.attach(SERVO7);
+  s8.attach(SERVO8);
 }
 void loop() {
   Serial.print("Angle of wind: ");
@@ -105,7 +133,19 @@ void loop() {
   double r = sqrt(pow(height, 2) + pow(dist, 2)); 
   double def_r = sqrt(pow(height, 2) + pow(DEFAULT_DIST, 2));
   double dr = r - def_r;
+  double ndr = r + dr;
 
   // Step 4: Compute servo rotation angle (in degrees)
   double servo_angle = dr / SERVO_RAD * (180/M_PI);
+  double n_servo_angle = ndr / SERVO_RAD * (190/M_PI);
+  while(1) {
+    delay(500);
+    Serial.printf("Write servo: %f\n",servo_angle);
+    s2.write(servo_angle);
+    //s1.write(n_servo_angle);
+    delay(500);
+    Serial.printf("Write servo: %f\n",0);
+    s2.write(0);
+    //s1.write(0);
+  }
 }
