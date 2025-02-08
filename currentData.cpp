@@ -1,5 +1,6 @@
 
 
+
 #include <cmath>
 
 #include <iostream>
@@ -56,15 +57,7 @@ void fetchOceanCurrentData(double latitude, double longitude, double &current_sp
     }
 }
 
-int main() {
-    double latitude, longitude;  
-
-    std::cout << "Enter latitude: ";
-    std::cin >> latitude;
-
-    std::cout << "Enter longitude: ";
-    std::cin >> longitude;
-
+std::tuple<double, double> returnData(double latitude, double longitude) {
     double current_speed = 0, current_direction = 0;
 
     fetchOceanCurrentData(latitude, longitude, current_speed, current_direction);
@@ -72,6 +65,5 @@ int main() {
     std::cout << "Ocean Current Speed: " << current_speed << " m/s" << std::endl;
     std::cout << "Ocean Current Direction: " << current_direction << "°" << std::endl;
 
-    return 0;
+    return std::make_tuple(current_speed, current_direction);
 }
-
