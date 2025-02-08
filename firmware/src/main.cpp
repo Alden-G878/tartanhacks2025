@@ -1,5 +1,10 @@
 #include <Arduino.h>
 #include <vector>
+#include <Servo.h>
+
+#define SAIL_DIAMETER 2
+#define ROPE_ANGLE M_PI/4
+#define DEFAULT_DIST -1
 
 double dot(std::vector<double> v1, std::vector<double> v2) {
   double res = 0.0;
@@ -43,27 +48,56 @@ std::vector<double> sub(std::vector<double> v1, std::vector<double> v2) {
   return res;
 }
 
+double size(std::vector<double> v) {
+  return sqrt(dot(v,v));
+}
+
+std::vector<double> normalize(std::vector<double> v) {
+  return prop(v, 1/size(v));
+}
+
 void setup() {
   Serial.begin(115200);
+  Serial.setTimeout(5000);
 }
 void loop() {
   Serial.print("Angle of wind: ");
-  double ang = Serial.read();
+  String s = Serial.readString();
+  double ang = atof(s.c_str());
   Serial.println();
   Serial.printf("The angle of the wind is %f\n",ang);
   Serial.print("Heading angle: ");
-  double h_ang = Serial.read();
+  s = Serial.readString();
+  double h_ang = atof(s.c_str());
   Serial.println();
   Serial.printf("The angle of the heading is %f\n",h_ang);
   std::vector<double> heading(2);
-  // TODO: normalize heading
   std::vector<double> wind_head(2);
-  wind_head.at(0) = cos(ang);
-  wind_head.at(1) = sin(ang);
-  heading.at(0) = cos(h_ang);
-  heading.at(1) = sin(h_ang);
-  double d = dot(heading, wind_head);
-  std::vector<double> norm = prop(wind_head, d);
-  norm = sub(norm, wind_head);
-  Serial.printf("(x,y)=(%f,%f)\n",norm.at(0), norm.at(1));
+  wind_head.at(0) = cos(ang*(M_PI/180));
+  wind_head.at(1) = sin(ang*(M_PI/180));
+  heading.at(0) = cos(h_ang*(M_PI/180));
+  heading.at(1) = sin(h_ang*(M_PI/180));
+
+  double rot_ang = -h_ang*(M_PI/180);
+
+  double wh_t_0 = wind_head.at(0);
+  double wh_t_1 = wind_head.at(1);
+  double h_t_0 = heading.at(0);
+  double h_t_1 = heading.at(1);
+  wind_head.at(0) = cos(rot_ang)*wh_t_0 - sin(rot_ang)*wh_t_1;
+  wind_head.at(1) = sin(rot_ang)*wh_t_0 + cos(rot_ang)*wh_t_1;
+  heading.at(0) = cos(rot_ang)*h_t_0 - sin(rot_ang)*h_t_1;
+  heading.at(1) = sin(rot_ang)*h_t_0 + cos(rot_ang)*h_t_1;
+
+  std::vector<double> h_norm(2);
+  std::vector<double> w_norm(2);
+  h_norm.at(0) = heading.at(1);
+  h_norm.at(1) = -heading.at(0);
+  w_norm.at(0) = wind_head.at(1);
+  w_norm.at(1) = -wind_head.at(0);
+
+  std::vector<double> app = prop(w_norm, SAIL_DIAMETER/2);
+  //app.at(1) is the amount we have to shift the sail by
+  //length of rope r=sqrt(height^2 + (DEFAULT_DIST-app.at(1))^2)
+  //keep track of how much we have the rope in by, 
 }
