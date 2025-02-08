@@ -68,15 +68,15 @@ void processGrid(std::vector<std::vector<GridCell>> &grid) {
         for (auto &cell : row) {
             double wind_vx, wind_vy, current_vx, current_vy;
 
-            computeVectorComponents(cell.wind.direction, cell.wind.magnitude * cell.wind_scale, wind_vx, wind_vy);
-            computeVectorComponents(cell.current.direction, cell.current.magnitude, current_vx, current_vy);
-
-            cell.dot = wind_vx*wind_vy + current_vx*current_vy;
-
             if (abs(cell.heading-cell.wind.direction)<90){
                 cell.wind_scale = 0;
             }
 
+            computeVectorComponents(cell.wind.direction, cell.wind.magnitude * cell.wind_scale, wind_vx, wind_vy);
+            computeVectorComponents(cell.current.direction, cell.current.magnitude, current_vx, current_vy);
+
+            cell.dot = wind_vx*wind_vy + current_vx*current_vy;
+        
 
         }
     }
